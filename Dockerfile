@@ -1,5 +1,10 @@
 FROM ubuntu:16.04
 
+ARG IBGATEWAY_URL
+ARG IBCONTROLLER_URL
+ARG IBGATEWAY_DEST_FILENAME=ibgateway.sh
+ARG IBCONTROLLER_DEST_FILENAME=IBController.zip
+
 LABEL maintainer="Mike Ehrenberg <mvberg@gmail.com>"
 
 RUN  apt-get update \
@@ -17,20 +22,20 @@ RUN  apt-get update \
 # Setup IB TWS
 RUN mkdir -p /opt/TWS
 WORKDIR /opt/TWS
-RUN wget -q http://cdn.quantconnect.com/interactive/ibgateway-latest-standalone-linux-x64-v974.4g.sh
-RUN chmod a+x ibgateway-latest-standalone-linux-x64-v974.4g.sh
+RUN wget -q -O $IBGATEWAY_DEST_FILENAME $IBGATEWAY_URL
+RUN chmod a+x $IBGATEWAY_DEST_FILENAME
 
 # Setup  IBController
 RUN mkdir -p /opt/IBController/ && mkdir -p /opt/IBController/Logs
 WORKDIR /opt/IBController/
-RUN wget -q http://cdn.quantconnect.com/interactive/IBController-QuantConnect-3.2.0.5.zip
-RUN unzip ./IBController-QuantConnect-3.2.0.5.zip
+RUN wget -q -O $IBCONTROLLER_DEST_FILENAME $IBCONTROLLER_URL
+RUN unzip ./$IBCONTROLLER_DEST_FILENAME
 RUN chmod -R u+x *.sh && chmod -R u+x Scripts/*.sh
 
 WORKDIR /
 
 # Install TWS
-RUN yes n | /opt/TWS/ibgateway-latest-standalone-linux-x64-v974.4g.sh
+RUN yes n | /opt/TWS/$IBGATEWAY_DEST_FILENAME
 
 ENV DISPLAY :0
 
